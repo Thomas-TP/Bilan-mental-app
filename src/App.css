@@ -1,0 +1,118 @@
+/* Global styles and custom animations */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Animations */
+@layer utilities {
+  @keyframes fade-in-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-down {
+    animation: fade-in-down 0.5s ease-out forwards;
+  }
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+
+  @keyframes slide-in-left {
+    0% {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  .animate-slide-in-left {
+    animation: slide-in-left 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards;
+  }
+
+  @keyframes slide-in-right {
+    0% {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  .animate-slide-in-right {
+    animation: slide-in-right 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards;
+  }
+  
+  @keyframes bounce-slow {
+    0%, 100% {
+      transform: translateY(-5%);
+      animation-timing-function: cubic-bezier(0.8,0,1,1);
+    }
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0,0,0.2,1);
+    }
+  }
+  .animate-bounce-slow {
+    animation: bounce-slow 2s infinite;
+  }
+
+  @keyframes slide-in-up-chat {
+    0% {
+      opacity: 0;
+      transform: translateY(50px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .animate-slide-in-up-chat {
+    animation: slide-in-up-chat 0.3s ease-out forwards;
+  }
+
+  /* Delay utilities if not covered by Tailwind directly in this version */
+  .delay-150 { animation-delay: 150ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-600 { animation-delay: 600ms; }
+  .delay-800 { animation-delay: 800ms; }
+  .delay-1000 { animation-delay: 1000ms; }
+  .delay-1500 { animation-delay: 1500ms; }
+}
+
+/* Ensure body and html take full height for some layouts if needed */
+html, body, #root {
+  height: 100%;
+  scroll-behavior: smooth; /* For smooth scrolling on anchor links */
+}
+
+body {
+  font-family: 'Inter', sans-serif; /* Example: Using Inter font, ensure it's imported or available */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Add any other global styles or overrides here */
+
