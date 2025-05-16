@@ -1,35 +1,205 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from "react";
+
+// Mockup d\"une fonction pour récupérer les professionnels (à remplacer par une vraie API)
+const fetchProfessionals = async (location: string | null) => {
+  console.log("Recherche de professionnels pour :", location);
+  // Simuler un appel API
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  if (location && location.toLowerCase().includes("paris")) {
+    return [
+      { id: 1, name: "Dr. Alice Dupont", specialty: "Psychologue Clinicienne", address: "12 Rue de la Paix, Paris", phone: "01 23 45 67 89", website: "alicedupont-psy.fr" },
+      { id: 2, name: "M. Bruno Petit", specialty: "Thérapeute Comportemental", address: "45 Avenue des Champs-Élysées, Paris", phone: "01 98 76 54 32", website: "brunopetit-therapie.com" },
+      { id: 3, name: "Mme. Chloé Durand", specialty: "Sophrologue", address: "8 Boulevard Saint-Germain, Paris", phone: "01 12 23 34 45", website: "chloedurand-sophro.net" },
+    ];
+  } else if (location) {
+     return [
+      { id: 4, name: "Dr. Martin Lefevre", specialty: "Psychiatre", address: "1 Place de la Comédie, AutreVille", phone: "04 00 00 00 00", website: "martinlefevre-psy.fr" },
+    ];
+  }
+  return [];
+};
+
+interface Professional {
+  id: number;
+  name: string;
+  specialty: string;
+  address: string;
+  phone: string;
+  website?: string;
+}
 
 const ContactProfessionalsSection: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [userLocation, setUserLocation] = useState<string | null>(null);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [locationInput, setLocationInput] = useState("");
+  const [searchAttempted, setSearchAttempted] = useState(false);
+
+  useEffect(() => {
+    const currentSectionRef = sectionRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            entry.target.querySelectorAll(".animate-on-scroll-child").forEach((el, index) => {
+              (el as HTMLElement).style.transitionDelay = `${index * 0.2}s`;
+              el.classList.add("is-visible");
+            });
+            // observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (currentSectionRef) {
+      observer.observe(currentSectionRef);
+    }
+
+    return () => {
+      if (currentSectionRef) {
+        observer.unobserve(currentSectionRef);
+      }
+    };
+  }, []);
+
+  const handleGeolocate = () => {
+    setIsLoading(true);
+    setError(null);
+    setSearchAttempted(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          // Pour la démo, on simule une ville. Une vraie app utiliserait un service de reverse geocoding.
+          // const { latitude, longitude } = position.coords;
+          // console.log(latitude, longitude)
+          // Pour la démo, on va dire Paris si les coordonnées sont proches de Paris, sinon une ville générique
+          // Ceci est une simplification grossière.
+          // Une vraie app utiliserait une API de reverse geocoding pour obtenir la ville.
+          setUserLocation("Paris (détecté)"); // Simulé
+          setLocationInput("Paris (détecté)");
+          const fetchedProfessionals = await fetchProfessionals("Paris");
+          setProfessionals(fetchedProfessionals);
+          setIsLoading(false);
+        },
+        (err) => {
+          setError("Impossible d\"obtenir la localisation. Veuillez l\"entrer manuellement ou vérifier les permissions.");
+          console.error(err);
+          setUserLocation(null);
+          setIsLoading(false);
+        }
+      );
+    } else {
+      setError("La géolocalisation n\"est pas supportée par votre navigateur.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleManualSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!locationInput.trim()) {
+      setError("Veuillez entrer une ville pour la recherche.");
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    setSearchAttempted(true);
+    setUserLocation(locationInput);
+    const fetchedProfessionals = await fetchProfessionals(locationInput);
+    setProfessionals(fetchedProfessionals);
+    setIsLoading(false);
+  };
+
   return (
-    <section id="contact-pro" className="py-16 md:py-24 bg-gray-100">
+    <section 
+      ref={sectionRef}
+      id="contact" // Changé l\"id pour correspondre au menu du Header
+      className="py-16 md:py-24 bg-nuit-sereine text-craie-douce animate-on-scroll slide-in-up-on-scroll"
+    >
       <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Contacter un Professionnel</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Si vous ressentez le besoin d'un accompagnement plus personnalisé, n'hésitez pas à contacter un professionnel de la santé mentale. 
-            Vous trouverez ci-dessous des pistes pour vous orienter.
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-vert-espoir mb-4 animate-on-scroll-child slide-in-up-on-scroll">Trouver un Soutien Professionnel</h2>
+          <p className="text-lg md:text-xl text-craie-douce/80 max-w-3xl mx-auto animate-on-scroll-child slide-in-up-on-scroll">
+            Si vous ressentez le besoin de parler à un professionnel, nous pouvons vous aider à trouver des contacts qualifiés près de chez vous (fonctionnalité en cours d\"amélioration).
           </p>
         </div>
-        <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-xl">
-          <p className="text-gray-700 mb-4">
-            Bien que Bilan Mental Express vise à vous fournir des outils pour un suivi quotidien, il ne remplace en aucun cas l'avis ou le suivi d'un professionnel qualifié (psychologue, psychiatre, thérapeute).
-          </p>
-          <p className="text-gray-700 mb-6">
-            Pour trouver un professionnel près de chez vous ou pour une téléconsultation, vous pouvez consulter des annuaires spécialisés ou vous rapprocher de votre médecin traitant qui pourra vous orienter.
-          </p>
-          <div className="text-center">
-            <a 
-              href="mailto:aide-professionnelle@example.com?subject=Demande d'orientation - Bilan Mental Express"
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform duration-300 ease-in-out transform hover:scale-105"
-            >
-              Demander une Orientation (Email)
-            </a>
-            <p className="text-xs text-gray-500 mt-3">
-              (Note: Ce lien ouvrira votre client de messagerie. Remplacez l'adresse email par une adresse de contact réelle pour une version en production.)
-            </p>
+
+        <div className="max-w-2xl mx-auto bg-encre-profonde/30 p-6 md:p-10 rounded-xl shadow-2xl mb-12 animate-on-scroll-child slide-in-up-on-scroll">
+          <form onSubmit={handleManualSearch} className="space-y-4 mb-6">
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-craie-douce/80 mb-1">Votre ville :</label>
+              <input 
+                type="text" 
+                id="location" 
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                placeholder="Ex: Paris, Lyon, Marseille..."
+                className="w-full bg-nuit-sereine/60 text-craie-douce p-3 rounded-md focus:ring-2 focus:ring-vert-espoir focus:border-vert-espoir outline-none transition-colors"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+                <button 
+                    type="submit" 
+                    className="w-full sm:w-auto flex-grow bg-vert-espoir hover:bg-opacity-80 text-nuit-sereine font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md hover:shadow-vert-espoir/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isLoading}
+                >
+                    {isLoading && !userLocation ? "Recherche..." : "Rechercher Manuellement"}
+                </button>
+                <button 
+                    type="button" 
+                    onClick={handleGeolocate} 
+                    className="w-full sm:w-auto flex-grow bg-bleu-confiance hover:bg-opacity-80 text-nuit-sereine font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md hover:shadow-bleu-confiance/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    disabled={isLoading}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                    {isLoading && userLocation ? "Localisation..." : "Me Géolocaliser"}
+                </button>
+            </div>
+          </form>
+          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        </div>
+
+        {isLoading && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vert-espoir mx-auto"></div>
+            <p className="mt-4 text-craie-douce/80">Recherche de professionnels...</p>
           </div>
-        </div>
+        )}
+
+        {!isLoading && searchAttempted && professionals.length === 0 && (
+          <div className="text-center py-8 bg-encre-profonde/20 p-6 rounded-lg animate-fade-in">
+            <p className="text-xl text-craie-douce/90 mb-2">Aucun professionnel trouvé pour "{userLocation || locationInput}".</p>
+            <p className="text-craie-douce/70">Veuillez essayer une autre ville ou vérifier l\"orthographe.</p>
+          </div>
+        )}
+
+        {!isLoading && professionals.length > 0 && (
+          <div className="space-y-6 animate-fade-in">
+            <h3 className="text-2xl font-semibold text-center text-craie-douce mb-6">Professionnels suggérés {userLocation ? `autour de ${userLocation.replace(" (détecté)","")}` : ""} :</h3>
+            {professionals.map((pro) => (
+              <div key={pro.id} className="bg-nuit-sereine/50 p-6 rounded-xl shadow-lg hover:shadow-vert-espoir/10 transition-shadow duration-300">
+                <h4 className="text-xl font-bold text-vert-espoir mb-1">{pro.name}</h4>
+                <p className="text-md text-craie-douce/90 mb-1">{pro.specialty}</p>
+                <p className="text-sm text-craie-douce/70 mb-1">{pro.address}</p>
+                <p className="text-sm text-craie-douce/70">{pro.phone}</p>
+                {pro.website && 
+                  <a href={`http://${pro.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-bleu-confiance hover:underline mt-1 inline-block">
+                    Visiter le site web
+                  </a>
+                }
+              </div>
+            ))}
+          </div>
+        )}
+         <p className="text-center text-xs text-craie-douce/50 mt-12 animate-on-scroll-child slide-in-up-on-scroll">
+            Note : Cette liste est fournie à titre indicatif et est basée sur une simulation. Pour une recherche exhaustive, veuillez consulter des annuaires professionnels spécialisés.
+          </p>
       </div>
     </section>
   );

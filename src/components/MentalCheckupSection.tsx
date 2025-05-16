@@ -1,284 +1,225 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
-// Définition des types pour les questions et réponses
-interface AnswerOption {
+// Définition des types pour les questions et les réponses
+interface Answer {
   text: string;
-  value: number;
+  score: number;
 }
 
 interface Question {
   id: number;
   text: string;
-  theme: string;
-  options: AnswerOption[];
-  answerType: 'scale' | 'choice';
+  answers: Answer[];
 }
 
-// Données du questionnaire (basées sur questionnaire_design.md)
-const quizQuestions: Question[] = [
+const questions: Question[] = [
   {
-    id: 1, theme: "Humeur et Émotions",
-    text: "Comment décririez-vous votre humeur générale aujourd'hui ?",
-    answerType: 'scale',
-    options: [
-      { text: "Très maussade", value: 1 },
-      { text: "Plutôt maussade", value: 2 },
-      { text: "Neutre", value: 3 },
-      { text: "Plutôt bonne", value: 4 },
-      { text: "Excellente", value: 5 },
+    id: 1,
+    text: "Comment évaluez-vous votre niveau d\'énergie aujourd\'hui ?",
+    answers: [
+      { text: "Très bas, épuisé(e)", score: 1 },
+      { text: "Plutôt bas", score: 2 },
+      { text: "Moyen", score: 3 },
+      { text: "Plutôt élevé", score: 4 },
+      { text: "Très élevé, plein(e) d\'énergie", score: 5 },
     ],
   },
   {
-    id: 2, theme: "Niveau de Stress et d'Anxiété",
-    text: "Sur une échelle de 1 à 5, comment évaluez-vous votre niveau de stress aujourd'hui ?",
-    answerType: 'scale',
-    options: [
-      { text: "Très bas", value: 1 },
-      { text: "Bas", value: 2 },
-      { text: "Modéré", value: 3 },
-      { text: "Élevé", value: 4 },
-      { text: "Très élevé", value: 5 },
+    id: 2,
+    text: "Votre sommeil cette nuit a-t-il été réparateur ?",
+    answers: [
+      { text: "Pas du tout, très mauvaise nuit", score: 1 },
+      { text: "Peu réparateur", score: 2 },
+      { text: "Moyennement", score: 3 },
+      { text: "Plutôt bien dormi", score: 4 },
+      { text: "Très bien, sommeil profond", score: 5 },
     ],
   },
   {
-    id: 3, theme: "Qualité du Sommeil",
-    text: "Comment avez-vous dormi la nuit dernière ?",
-    answerType: 'choice',
-    options: [
-      { text: "Très mal, peu reposant", value: 1 },
-      { text: "Assez mal, sommeil agité", value: 2 },
-      { text: "Moyen, ni bien ni mal", value: 3 },
-      { text: "Bien, sommeil réparateur", value: 4 },
-      { text: "Très bien, parfaitement reposé(e)", value: 5 },
+    id: 3,
+    text: "Comment vous sentez-vous face à vos tâches/responsabilités du jour ?",
+    answers: [
+      { text: "Complètement dépassé(e)", score: 1 },
+      { text: "Anxieux(se), stressé(e)", score: 2 },
+      { text: "Gérable, mais avec effort", score: 3 },
+      { text: "Confiant(e) et organisé(e)", score: 4 },
+      { text: "Très motivé(e) et serein(e)", score: 5 },
     ],
   },
   {
-    id: 4, theme: "Niveau d'Énergie et Vitalité",
-    text: "Comment vous sentez-vous physiquement et mentalement en termes d'énergie aujourd'hui ?",
-    answerType: 'scale',
-    options: [
-      { text: "Totalement à plat, épuisé(e)", value: 1 },
-      { text: "Fatigué(e), peu d'énergie", value: 2 },
-      { text: "Niveau d'énergie moyen", value: 3 },
-      { text: "Plein(e) d'énergie", value: 4 },
-      { text: "Débordant(e) d'énergie", value: 5 },
+    id: 4,
+    text: "Avez-vous réussi à prendre du temps pour vous récemment (loisir, détente) ?",
+    answers: [
+      { text: "Aucun temps pour moi", score: 1 },
+      { text: "Très peu, difficilement", score: 2 },
+      { text: "Un peu, mais pas assez", score: 3 },
+      { text: "Oui, régulièrement", score: 4 },
+      { text: "Oui, pleinement et fréquemment", score: 5 },
     ],
   },
   {
-    id: 5, theme: "Concentration et Productivité",
-    text: "Avez-vous eu des difficultés à vous concentrer sur vos tâches aujourd'hui ?",
-    answerType: 'scale',
-    options: [
-      { text: "Oui, constamment", value: 5 }, // Inversion pour le score, difficulté élevée = mauvais
-      { text: "Oui, souvent", value: 4 },
-      { text: "Parfois", value: 3 },
-      { text: "Rarement", value: 2 },
-      { text: "Pas du tout", value: 1 },
+    id: 5,
+    text: "Votre humeur générale ces dernières heures est plutôt...",
+    answers: [
+      { text: "Très négative, irritable", score: 1 },
+      { text: "Morose, maussade", score: 2 },
+      { text: "Neutre, sans grand changement", score: 3 },
+      { text: "Positive, de bonne humeur", score: 4 },
+      { text: "Excellente, joyeux(se)", score: 5 },
     ],
   },
   {
-    id: 6, theme: "Relations Sociales et Connexion",
-    text: "Vous êtes-vous senti(e) connecté(e) et soutenu(e) par votre entourage récemment ?",
-    answerType: 'scale',
-    options: [
-      { text: "Pas du tout connecté(e) ni soutenu(e)", value: 1 },
-      { text: "Peu connecté(e) et soutenu(e)", value: 2 },
-      { text: "Moyennement connecté(e) et soutenu(e)", value: 3 },
-      { text: "Bien connecté(e) et soutenu(e)", value: 4 },
-      { text: "Très connecté(e) et pleinement soutenu(e)", value: 5 },
+    id: 6,
+    text: "Vous sentez-vous connecté(e) aux autres (amis, famille, collègues) ?",
+    answers: [
+      { text: "Très isolé(e), déconnecté(e)", score: 1 },
+      { text: "Plutôt seul(e)", score: 2 },
+      { text: "Ça dépend des moments", score: 3 },
+      { text: "Bien connecté(e) dans l\'ensemble", score: 4 },
+      { text: "Très entouré(e) et soutenu(e)", score: 5 },
     ],
   },
   {
-    id: 7, theme: "Sentiment d'Accomplissement et Positivité",
-    text: "Avez-vous ressenti un sentiment de satisfaction ou d'accomplissement récemment (petites ou grandes choses) ?",
-    answerType: 'scale',
-    options: [
-      { text: "Aucun sentiment de satisfaction", value: 1 },
-      { text: "Rarement", value: 2 },
-      { text: "Occasionnellement", value: 3 },
-      { text: "Souvent", value: 4 },
-      { text: "Très souvent, un réel sentiment d'accomplissement", value: 5 },
+    id: 7,
+    text: "Avez-vous ressenti de la joie ou du plaisir récemment ?",
+    answers: [
+      { text: "Non, pas du tout", score: 1 },
+      { text: "Rarement ou très peu", score: 2 },
+      { text: "Occasionnellement", score: 3 },
+      { text: "Oui, plusieurs fois", score: 4 },
+      { text: "Oui, fréquemment et intensément", score: 5 },
     ],
   },
 ];
 
-interface AnswersState {
-  [key: number]: number; // questionId: answerValue
-}
-
 const MentalCheckupSection: React.FC = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<AnswersState>({});
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [totalScore, setTotalScore] = useState<number | null>(null);
   const [showResults, setShowResults] = useState(false);
-  const [quizStarted, setQuizStarted] = useState(false);
 
-  const handleAnswer = (questionId: number, answerValue: number) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answerValue }));
-  };
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const questionContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleNext = () => {
-    if (currentQuestionIndex < quizQuestions.length - 1) {
+  useEffect(() => {
+    const currentSectionRef = sectionRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (currentSectionRef) {
+      observer.observe(currentSectionRef);
+    }
+
+    return () => {
+      if (currentSectionRef) {
+        observer.unobserve(currentSectionRef);
+      }
+    };
+  }, []);
+
+  const handleAnswer = (score: number) => {
+    const newAnswers = [...answers, score];
+    setAnswers(newAnswers);
+
+    if (questionContainerRef.current) {
+      questionContainerRef.current.classList.remove("animate-fade-in");
+      void questionContainerRef.current.offsetWidth; // Trigger reflow
+      questionContainerRef.current.classList.add("animate-fade-in");
+    }
+
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
+      const finalScore = newAnswers.reduce((acc, curr) => acc + curr, 0);
+      setTotalScore(finalScore);
       setShowResults(true);
     }
   };
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
+  const getFeedback = () => {
+    if (totalScore === null) return "";
+    if (totalScore <= 10) return "Votre score suggère que vous traversez une période difficile. N\'hésitez pas à chercher du soutien. Des petites actions quotidiennes peuvent aider, mais un professionnel peut vous offrir un accompagnement adapté.";
+    if (totalScore <= 17) return "Il semble que votre bien-être mental soit mis à l\'épreuve. Pensez à intégrer des moments de détente et à parler de ce que vous ressentez. Nos suggestions pourraient vous être utiles.";
+    if (totalScore <= 24) return "Votre équilibre mental semble correct, mais il y a peut-être des points d\'attention. Continuez à prendre soin de vous et à surveiller les signaux de stress ou de fatigue.";
+    if (totalScore <= 30) return "Vous semblez plutôt bien ! Continuez à cultiver vos habitudes positives et à rester attentif(ve) à vos besoins.";
+    return "Excellent ! Votre score indique un très bon équilibre mental. Continuez sur cette lancée et partagez votre positivité !";
   };
 
-  const calculateScore = () => {
-    return Object.values(answers).reduce((sum, value) => sum + value, 0);
-  };
-
-  const getFeedback = (score: number): { category: string; message: string; suggestions: string[] } => {
-    if (score <= 15) { // Seuil bas (7-15 dans la conception)
-      return {
-        category: "Besoin d'attention",
-        message: "Il semble que vous traversiez une période un peu difficile. C'est courageux de faire ce bilan. N'oubliez pas que vous n'êtes pas seul(e).",
-        suggestions: [
-          "Prenez quelques minutes pour une respiration guidée afin de vous recentrer.",
-          "Essayez une courte activité de journaling pour exprimer ce que vous ressentez.",
-          "N'hésitez pas à parler à une personne de confiance ou à envisager de contacter un professionnel.",
-        ],
-      };
-    } else if (score <= 27) { // Seuil moyen (16-27 dans la conception)
-      return {
-        category: "Globalement stable",
-        message: "Votre bilan montre un équilibre global, c'est une bonne base ! Il y a toujours des petites choses que l'on peut ajuster pour se sentir encore mieux.",
-        suggestions: [
-          "Pourquoi ne pas intégrer une micro-déconnexion dans votre journée ?",
-          "Pensez à une activité créative qui vous plaît pour stimuler votre esprit.",
-          "Continuez à prêter attention à votre sommeil et à votre niveau d'énergie.",
-        ],
-      };
-    } else { // Seuil élevé (28-35 dans la conception)
-      return {
-        category: "Bon état de bien-être",
-        message: "Excellent ! Votre bilan indique un très bon état de bien-être mental. Continuez sur cette lancée !",
-        suggestions: [
-          "Maintenez vos bonnes habitudes en matière de sommeil, d'activité et de relations sociales.",
-          "Partagez votre positivité avec votre entourage !",
-          "Explorez de nouvelles activités pour continuer à nourrir votre esprit.",
-        ],
-      };
-    }
-  };
-
-  const restartQuiz = () => {
+  const restartCheckup = () => {
     setCurrentQuestionIndex(0);
-    setAnswers({});
+    setAnswers([]);
+    setTotalScore(null);
     setShowResults(false);
-    setQuizStarted(true);
   };
-  
-  const startQuiz = () => {
-    setQuizStarted(true);
-    setCurrentQuestionIndex(0);
-    setAnswers({});
-    setShowResults(false);
-  }
 
-  if (!quizStarted) {
-    return (
-      <section id="mental-checkup-start" className="py-16 md:py-24 bg-gradient-to-br from-blue-500 to-green-400 text-white">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-fade-in-down">Prêt pour votre Bilan Mental Express ?</h2>
-          <p className="text-lg md:text-xl mb-8 animate-fade-in-up delay-300">
-            Prenez 5 minutes pour faire le point sur votre bien-être mental.
-          </p>
-          <button
-            onClick={startQuiz}
-            className="bg-yellow-400 hover:bg-yellow-500 text-blue-800 font-bold py-3 px-8 rounded-full text-lg transition-transform duration-300 ease-in-out transform hover:scale-105 animate-bounce-slow delay-500"
-          >
-            Commencer le Bilan
-          </button>
-        </div>
-      </section>
-    );
-  }
-
-  if (showResults) {
-    const score = calculateScore();
-    const feedback = getFeedback(score);
-    return (
-      <section id="mental-checkup-results" className="py-16 md:py-24 bg-gray-100">
-        <div className="container mx-auto px-6 text-center max-w-2xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Vos Résultats</h2>
-          <div className="bg-white p-8 rounded-lg shadow-xl">
-            <p className="text-xl font-semibold text-blue-600 mb-2">Score Total : {score} / {quizQuestions.length * 5}</p>
-            <p className="text-lg font-medium text-green-600 mb-4">Catégorie : {feedback.category}</p>
-            <p className="text-gray-700 mb-6">{feedback.message}</p>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">Suggestions pour vous :</h3>
-            <ul className="list-disc list-inside text-left text-gray-600 space-y-2 mb-8">
-              {feedback.suggestions.map((s, i) => <li key={i}>{s}</li>)}
-            </ul>
-            <button
-              onClick={restartQuiz}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full text-lg transition-transform duration-300 ease-in-out transform hover:scale-105"
-            >
-              Refaire le Bilan
-            </button>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  const currentQuestion = quizQuestions[currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <section id="mental-checkup-quiz" className="py-16 md:py-24 bg-blue-50">
-      <div className="container mx-auto px-6 max-w-xl">
-        <div className="bg-white p-8 rounded-lg shadow-xl">
-          <div className="mb-6">
-            <p className="text-sm text-blue-600 font-semibold">Thème : {currentQuestion.theme}</p>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mt-1 mb-3">Question {currentQuestionIndex + 1} sur {quizQuestions.length}</h2>
-            <p className="text-lg text-gray-700">{currentQuestion.text}</p>
-          </div>
+    <section 
+      ref={sectionRef} 
+      id="le-bilan" 
+      className="py-16 md:py-24 bg-nuit-sereine text-craie-douce animate-on-scroll slide-in-up-on-scroll"
+    >
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-vert-espoir">Votre Bilan Mental Express</h2>
+          <p className="text-lg md:text-xl text-craie-douce/80 max-w-3xl mx-auto">
+            Prenez quelques instants pour vous. Répondez honnêtement pour un aperçu de votre état actuel.
+          </p>
+        </div>
 
-          <div className="space-y-3 mb-8">
-            {currentQuestion.options.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleAnswer(currentQuestion.id, option.value)}
-                className={`w-full text-left p-4 rounded-md border-2 transition-all duration-200 ease-in-out 
-                            ${answers[currentQuestion.id] === option.value 
-                              ? 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300'
-                              : 'bg-gray-50 hover:bg-gray-100 border-gray-300 hover:border-blue-400'}`}
-              >
-                {option.text}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md disabled:opacity-50 transition-colors duration-300"
-            >
-              Précédent
-            </button>
-            <div className="w-full mx-4">
-              <div className="bg-gray-200 rounded-full h-2.5">
+        <div className="max-w-2xl mx-auto bg-encre-profonde/30 p-6 md:p-10 rounded-xl shadow-2xl">
+          {!showResults ? (
+            <div ref={questionContainerRef} className="transition-opacity duration-500 ease-in-out">
+              <p className="text-sm text-craie-douce/70 mb-2">
+                Question {currentQuestionIndex + 1} sur {questions.length}
+              </p>
+              <h3 className="text-xl md:text-2xl font-semibold text-craie-douce mb-6 md:mb-8 min-h-[60px] md:min-h-[80px]">
+                {currentQuestion.text}
+              </h3>
+              <div className="space-y-3 md:space-y-4">
+                {currentQuestion.answers.map((answer) => (
+                  <button
+                    key={answer.text}
+                    onClick={() => handleAnswer(answer.score)}
+                    className="w-full text-left bg-nuit-sereine/50 hover:bg-vert-espoir hover:text-nuit-sereine text-craie-douce font-medium py-3 px-5 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-vert-espoir"
+                  >
+                    {answer.text}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-8 h-2 bg-nuit-sereine/50 rounded-full overflow-hidden">
                 <div 
-                  className="bg-blue-500 h-2.5 rounded-full transition-all duration-500 ease-out" 
-                  style={{ width: `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%` }}
+                  className="h-full bg-vert-espoir transition-all duration-500 ease-in-out"
+                  style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
                 ></div>
               </div>
             </div>
-            <button
-              onClick={handleNext}
-              disabled={answers[currentQuestion.id] === undefined}
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md disabled:opacity-50 transition-colors duration-300"
-            >
-              {currentQuestionIndex === quizQuestions.length - 1 ? 'Terminer' : 'Suivant'}
-            </button>
-          </div>
+          ) : (
+            <div className="text-center animate-fade-in">
+              <h3 className="text-2xl md:text-3xl font-bold text-vert-espoir mb-4">Résultats de votre Bilan</h3>
+              <p className="text-4xl md:text-5xl font-bold text-craie-douce mb-6">
+                Score : {totalScore} / {questions.length * 5}
+              </p>
+              <p className="text-md md:text-lg text-craie-douce/90 mb-8 leading-relaxed">
+                {getFeedback()}
+              </p>
+              <button
+                onClick={restartCheckup}
+                className="bg-vert-espoir hover:bg-opacity-80 text-nuit-sereine font-bold py-3 px-8 rounded-lg text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-vert-espoir/30"
+              >
+                Refaire le Bilan
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </section>

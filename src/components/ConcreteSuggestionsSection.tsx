@@ -1,57 +1,95 @@
-import React from 'react';
+import React, { useEffect, useRef } from "react";
 
 interface SuggestionCardProps {
   title: string;
   description: string;
-  icon: string; // Placeholder for an icon, e.g., emoji or SVG path
+  icon: string; 
 }
 
 const SuggestionCard: React.FC<SuggestionCardProps> = ({ title, description, icon }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
-      <div className="text-4xl mb-4 text-center text-blue-500">{icon}</div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-2 text-center">{title}</h3>
-      <p className="text-gray-600 text-sm text-center">{description}</p>
+    <div className="bg-nuit-sereine/50 p-6 rounded-xl shadow-lg hover:shadow-vert-espoir/20 transition-all duration-300 ease-in-out transform hover:-translate-y-1.5 h-full flex flex-col">
+      <div className="text-5xl mb-5 text-center text-vert-espoir">{icon}</div>
+      <h3 className="text-xl font-bold text-craie-douce mb-3 text-center">{title}</h3>
+      <p className="text-craie-douce/70 text-sm text-center flex-grow">{description}</p>
     </div>
   );
 };
 
 const ConcreteSuggestionsSection: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const currentSectionRef = sectionRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            entry.target.querySelectorAll(".animate-on-scroll-child").forEach((el, index) => {
+              (el as HTMLElement).style.transitionDelay = `${index * 0.15}s`;
+              el.classList.add("is-visible");
+            });
+            // observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (currentSectionRef) {
+      observer.observe(currentSectionRef);
+    }
+
+    return () => {
+      if (currentSectionRef) {
+        observer.unobserve(currentSectionRef);
+      }
+    };
+  }, []);
+
+
   const suggestions = [
     {
-      title: "Respiration Guidée",
-      description: "Prenez 5 minutes pour une séance de respiration profonde. Inspirez lentement, retenez, puis expirez. Répétez.",
+      title: "Respiration Consciente",
+      description: "Prenez 5 minutes pour une séance de respiration profonde. Inspirez lentement par le nez, retenez quelques secondes, puis expirez doucement par la bouche. Répétez.",
       icon: "🌬️",
     },
     {
-      title: "Pause Créative",
-      description: "Accordez-vous un moment pour dessiner, écrire, écouter de la musique ou toute activité qui stimule votre créativité.",
+      title: "Pause Active & Créative",
+      description: "Accordez-vous un moment pour une activité qui vous plaît : dessiner, écrire, écouter de la musique, ou simplement marcher quelques minutes.",
       icon: "🎨",
     },
     {
-      title: "Micro-Déconnexion",
-      description: "Éloignez-vous de vos écrans pendant 10-15 minutes. Levez-vous, étirez-vous, regardez par la fenêtre.",
-      icon: "🔌",
+      title: "Micro-Déconnexion Numérique",
+      description: "Éloignez-vous de vos écrans pendant 10-15 minutes. Levez-vous, étirez-vous, regardez par la fenêtre ou buvez un verre d\"eau.",
+      icon: "🔌", 
     },
     {
-      title: "Journaling Express",
-      description: "Notez rapidement 3 choses pour lesquelles vous êtes reconnaissant(e) aujourd\'hui ou une pensée positive.",
-      icon: "📓",
+      title: "Gratitude Express",
+      description: "Notez mentalement ou sur papier 3 choses, même petites, pour lesquelles vous êtes reconnaissant(e) aujourd\"hui.",
+      icon: "📓", 
     },
   ];
 
   return (
-    <section id="suggestions" className="py-16 md:py-24 bg-blue-50">
+    <section 
+      ref={sectionRef}
+      id="ressources" // Changé l\'id pour correspondre au menu du Header
+      className="py-16 md:py-24 bg-nuit-sereine text-craie-douce animate-on-scroll slide-in-up-on-scroll"
+    >
       <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Suggestions Concrètes pour Aller Mieux</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Voici quelques actions simples que vous pouvez intégrer à votre quotidien pour améliorer votre bien-être mental.
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-vert-espoir mb-4 animate-on-scroll-child slide-in-up-on-scroll">Des Clés pour Votre Quotidien</h2>
+          <p className="text-lg md:text-xl text-craie-douce/80 max-w-3xl mx-auto animate-on-scroll-child slide-in-up-on-scroll">
+            Intégrez ces actions simples dans votre routine pour cultiver un esprit plus serein et résilient.
           </p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {suggestions.map((suggestion) => (
-            <SuggestionCard key={suggestion.title} {...suggestion} />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {suggestions.map((suggestion, index) => (
+            <div key={index} className="animate-on-scroll-child slide-in-up-on-scroll h-full">
+              <SuggestionCard {...suggestion} />
+            </div>
           ))}
         </div>
       </div>

@@ -1,47 +1,49 @@
-import React from 'react';
-import logoLightBg from '../assets/logo-light-bg.jpg'; // Assuming header has a light background
+import React, { useState, useEffect } from 'react';
+import logoLight from '../assets/logo-light-bg.jpg'; // Utiliser le logo pour fond clair sur fond sombre
 
 const Header: React.FC = () => {
-  const navItems = [
-    { name: 'Accueil', href: '#hero' },
-    { name: 'Le Défi', href: '#problem' },
-    { name: 'Notre Solution', href: '#solution' },
-    { name: 'Pour Qui ?', href: '#personas' },
-    { name: 'Notre Vision', href: '#vision' },
-    { name: 'Nos Offres', href: '#monetization' },
-    { name: 'Aide', href: '#chat' }, // This might be handled by the chatbot icon itself
-  ];
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
-      <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
-        <a href="#hero" className="flex items-center">
-          <img src={logoLightBg} alt="Bilan Mental Express Logo" className="h-10 md:h-12 mr-3" /> 
-          {/* Textual logo can be removed or kept as a fallback/complement */}
-          {/* <span className="text-xl font-bold text-blue-600">BilanMental<span className="text-green-500">Express</span></span> */}
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out 
+                  ${isScrolled ? 'bg-nuit-sereine/90 shadow-lg backdrop-blur-md' : 'bg-transparent'}`}
+    >
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="#" className="flex items-center space-x-2 group">
+          <img src={logoLight} alt="Bilan Mental Express Logo" className="h-10 md:h-12 transition-transform duration-300 group-hover:scale-105" />
+          {/* <span className="text-xl md:text-2xl font-bold text-craie-douce group-hover:text-vert-espoir transition-colors">Bilan Mental Express</span> */}
         </a>
-        <div className="hidden md:flex space-x-4">
-          {navItems.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              className="text-gray-700 hover:text-blue-600 transition-colors duration-300 px-3 py-2 rounded-md text-sm font-medium"
+        <nav className="hidden md:flex space-x-6">
+          {['Accueil', 'Le Bilan', 'Ressources', 'Contact'].map((item) => (
+            <a 
+              key={item} 
+              href={`#${item.toLowerCase().replace(' ', '-')}`} 
+              className="text-craie-douce hover:text-vert-espoir transition-colors duration-300 relative group pb-1"
             >
-              {item.name}
+              {item}
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-vert-espoir transition-all duration-300 ease-out group-hover:w-full"></span>
             </a>
           ))}
-        </div>
-        <div className="md:hidden">
-          {/* Mobile menu button - to be implemented with a dropdown */}
-          <button className="text-gray-700 focus:outline-none">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-            </svg>
-          </button>
-        </div>
-      </nav>
+        </nav>
+        <button className="md:hidden text-craie-douce hover:text-vert-espoir transition-colors">
+          {/* Icône Burger Menu (à ajouter) */}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+      </div>
     </header>
   );
 };
 
 export default Header;
+

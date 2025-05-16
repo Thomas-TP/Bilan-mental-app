@@ -1,27 +1,69 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const HeroSection: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const currentSectionRef = sectionRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in', 'animate-slide-in-up');
+            // Optionnel: déconnecter l'observateur après la première animation
+            // observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 } // Déclenche quand 10% de la section est visible
+    );
+
+    if (currentSectionRef) {
+      observer.observe(currentSectionRef);
+    }
+
+    return () => {
+      if (currentSectionRef) {
+        observer.unobserve(currentSectionRef);
+      }
+    };
+  }, []);
+
   return (
-    <section id="hero" className="bg-gradient-to-r from-blue-500 to-green-400 text-white min-h-screen flex items-center justify-center">
+    <section 
+      ref={sectionRef}
+      id="accueil" 
+      className="min-h-screen flex items-center justify-center bg-nuit-sereine text-craie-douce pt-20 md:pt-24 opacity-0"
+    >
       <div className="container mx-auto px-6 text-center">
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-down">
-          Bilan Mental <span className="text-yellow-300">Express</span>
-        </h1>
-        <p className="text-xl md:text-2xl mb-8 animate-fade-in-up delay-500">
-          Votre check-up mental quotidien en 5 minutes pour un esprit sain.
-        </p>
-        <p className="text-lg md:text-xl mb-12 max-w-3xl mx-auto animate-fade-in-up delay-1000">
-          Bilan Mental Express est une application mobile intelligente qui permet aux utilisateurs de faire un véritable check-up mental quotidien en seulement cinq minutes. En combinant intelligence artificielle, techniques de psychologie positive et données passives, elle fournit un tableau de bord personnel de l’état psychologique de l’utilisateur, avec des recommandations concrètes pour se sentir mieux, jour après jour.
-        </p>
-        <a
-          href="#solution"
-          className="bg-yellow-400 hover:bg-yellow-500 text-blue-800 font-bold py-3 px-8 rounded-full text-lg transition-transform duration-300 ease-in-out transform hover:scale-105 animate-bounce-slow delay-1500"
+        <h1 
+          className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight animate-on-scroll slide-in-up-on-scroll"
+          style={{ animationDelay: '0.2s' }} // Décalage pour l'animation
         >
-          Découvrez comment
-        </a>
+          Votre Bien-être Mental, <span className="text-vert-espoir">Simplifié</span>.
+        </h1>
+        <p 
+          className="text-lg md:text-xl lg:text-2xl text-craie-douce/80 mb-10 max-w-3xl mx-auto animate-on-scroll slide-in-up-on-scroll"
+          style={{ animationDelay: '0.4s' }}
+        >
+          Découvrez Bilan Mental Express : l’outil quotidien pour comprendre et améliorer votre équilibre intérieur, avec des conseils personnalisés et un soutien bienveillant.
+        </p>
+        <div 
+          className="animate-on-scroll slide-in-up-on-scroll"
+          style={{ animationDelay: '0.6s' }}
+        >
+          <a 
+            href="#le-bilan" 
+            className="bg-vert-espoir hover:bg-opacity-80 text-nuit-sereine font-bold py-4 px-10 rounded-lg text-lg md:text-xl transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-vert-espoir/30"
+          >
+            Commencer mon Bilan
+          </a>
+        </div>
       </div>
+      {/* Possibilité d'ajouter une image de fond subtile ou une illustration SVG animée ici */}
     </section>
   );
 };
 
 export default HeroSection;
+
