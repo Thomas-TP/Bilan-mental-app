@@ -37,15 +37,20 @@ const PersonasSection: React.FC = () => {
       name: "Léa, 28 ans, Chef de Projet Digital",
       challenge: "Submergée par les deadlines et la charge mentale, Léa cherche à mieux gérer son stress et à retrouver un équilibre vie pro/vie perso.",
       needs: "Outils rapides, discrets et efficaces pour un check-up quotidien et des conseils actionnables.",
-      icon: "👩
-Mojito, 32 ans, Freelance Créatif",
+      icon: "👩‍💻"
+    },
+    {
+      name: "Marc (anciennement Mojito), 32 ans, Freelance Créatif",
       challenge: "Confronté à l\"incertitude et à la pression de la performance, Marc a besoin de structurer ses journées et de maintenir sa motivation.",
       needs: "Suivi de son état émotionnel, techniques de concentration et gestion de l\"anxiété.",
-      icon: "👨
-Sophie, 45 ans, Mère et Entrepreneure",
+      icon: "👨‍🎨"
+    },
+    {
+      name: "Sophie, 45 ans, Mère et Entrepreneure",
       challenge: "Jonglant entre ses responsabilités familiales et professionnelles, Sophie se sent souvent épuisée et a du mal à prendre du temps pour elle.",
       needs: "Solutions pour identifier rapidement les signaux de fatigue, astuces pour se ressourcer et prioriser son bien-être.",
-      icon: "🧑
+      icon: "🧑‍💼"
+    }
   ];
 
   return (
