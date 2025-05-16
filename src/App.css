@@ -1,21 +1,29 @@
 /* App.css */
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Poppins:wght@600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap");
 
 body {
-  background-color: #1A202C; /* Nuit Sereine */
-  color: #F7FAFC; /* Craie Douce */
-  font-family: 'Nunito Sans', sans-serif;
+  background-color: #1A202C; /* nuit-sereine */
+  color: #F7FAFC; /* craie-douce */
+  font-family: "Inter", sans-serif; /* Police Inter par défaut */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Styles globaux pour les titres, si nécessaire */
+/* Styles globaux pour les titres, si Poppins est toujours souhaité pour les titres */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poppins', sans-serif;
-  color: #F7FAFC; /* Craie Douce par défaut pour les titres sur fond sombre */
+  font-family: "Poppins", sans-serif;
+  color: #F7FAFC; /* craie-douce par défaut pour les titres sur fond sombre */
 }
 
-/* Classes d'animation réutilisables (si non gérées directement par Tailwind) */
+/* Les classes d'animation .animate-on-scroll, .is-visible, .slide-in-up-on-scroll 
+   sont maintenant gérées par Framer Motion dans App.tsx et les animations Tailwind.
+   Elles peuvent être conservées pour compatibilité si des composants les utilisent encore directement,
+   mais l'objectif est de migrer vers Framer Motion ou les animations Tailwind pour la cohérence.
+   Pour l'instant, je les commente pour éviter les conflits potentiels et encourager l'utilisation
+   des nouvelles méthodes d'animation.
+*/
+
+/*
 .animate-on-scroll {
   opacity: 0;
   transition: opacity 0.5s ease-out, transform 0.5s ease-out;
@@ -29,32 +37,37 @@ h1, h2, h3, h4, h5, h6 {
 .slide-in-up-on-scroll {
   transform: translateY(30px);
 }
-
-/* Styles pour les transitions de Tailwind (peuvent être étendus ici si besoin) */
+*/
 
 /* Assurer une bonne base pour les transitions de Tailwind */
 * {
+  /* Les propriétés de transition sont déjà bien gérées par Tailwind et Framer Motion.
+     Déclarer des transitions globales ici peut interférer.
+     Commenté pour s'appuyer sur les transitions spécifiques des composants/utilitaires.
+  */
+  /*
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+  */
 }
 
-/* Styles spécifiques pour les scrollbars si on veut les customiser (optionnel) */
+/* Styles spécifiques pour les scrollbars (conservés, esthétiques et non conflictuels) */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #2D3748; /* Encre Profonde (un peu plus clair que le fond) */
+  background: #2D3748; /* fond-element (anciennement encre-profonde) */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4FD1C5; /* Vert Espoir */
+  background: #4FD1C5; /* vert-accent (anciennement vert-espoir) */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #38B2AC; /* Vert Espoir un peu plus foncé */
+  background: #38B2AC; /* vert-accent un peu plus foncé */
 }
 

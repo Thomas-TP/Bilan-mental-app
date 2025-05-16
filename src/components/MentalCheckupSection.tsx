@@ -206,9 +206,10 @@ const MentalCheckupSection: React.FC = () => {
           ) : (
             <div className="text-center animate-fade-in">
               <h3 className="text-2xl md:text-3xl font-bold text-vert-espoir mb-4">Résultats de votre Bilan</h3>
-              <p className="text-4xl md:text-5xl font-bold text-craie-douce mb-6">
+              {/* Score retiré sur demande de l'utilisateur */}
+              {/* <p className="text-4xl md:text-5xl font-bold text-craie-douce mb-6">
                 Score : {totalScore} / {questions.length * 5}
-              </p>
+              </p> */}
               <p className="text-md md:text-lg text-craie-douce/90 mb-8 leading-relaxed">
                 {getFeedback()}
               </p>

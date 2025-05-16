@@ -1,17 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    darkMode: ["class"], // Ou 'media' si vous préférez le mode sombre basé sur les préférences système
+    darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
     extend: {
       colors: {
-        'nuit-sereine': '#1A202C',
-        'craie-douce': '#F7FAFC',
-        'vert-espoir': '#4FD1C5',
-        'bleu-confiance': '#63B3ED',
-        'papier-naturel': '#F7FAFC',
-        'encre-profonde': '#2D3748',
-        // Conserver les couleurs de sidebar si elles sont toujours utilisées ou pour compatibilité
+        'nuit-sereine': '#1A202C', // Fond principal (noir/gris foncé du logo)
+        'craie-douce': '#F7FAFC',  // Texte principal (blanc du logo)
+        'vert-accent': '#4FD1C5', // Couleur d'accent (anciennement vert-espoir)
+        'bleu-lien': '#63B3ED', // Pour les liens si besoin (anciennement bleu-confiance)
+        'fond-element': '#2D3748', // Fond pour cartes, sections internes (anciennement encre-profonde)
+        // Conserver les couleurs de sidebar pour compatibilité si utilisées ailleurs
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',
           foreground: 'hsl(var(--sidebar-foreground))',
@@ -24,9 +23,8 @@ module.exports = {
         }
       },
       fontFamily: {
-        // Ajouter ici les polices si elles sont importées globalement
-        // Exemple: sans: ['Nunito Sans', 'sans-serif'],
-        // Exemple: display: ['Montserrat', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'], // Police moderne et professionnelle
+        // display: ['VotrePoliceHautDeGamme', 'serif'], // Si vous souhaitez une police spécifique pour les titres
       },
       borderRadius: {
         lg: 'var(--radius)',
